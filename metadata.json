@@ -1,0 +1,7 @@
+{
+  "name": "Dressify",
+  "description": "Your personal AI stylist that catalogs your wardrobe, suggests outfits based on weather and style, and tracks cost-per-wear for smarter shopping.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
