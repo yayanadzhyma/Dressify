@@ -23,6 +23,7 @@ export const ShopSmart = () => {
       setCombinations(results);
       addHistoryItem({
         id: Math.random().toString(36).substr(2, 9),
+        userId: '', // Will be set by the store
         query: search,
         combinations: results,
         timestamp: new Date().toISOString()

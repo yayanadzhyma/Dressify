@@ -5,7 +5,7 @@ import { useStore } from '../store';
 import { UserProfile } from '../types';
 
 export const Profile = () => {
-  const { profile, updateProfile } = useStore();
+  const { profile, updateProfile, signOut } = useStore();
   const [editingField, setEditingField] = useState<keyof UserProfile | 'privacy' | null>(null);
   const [tempValue, setTempValue] = useState('');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -107,7 +107,10 @@ export const Profile = () => {
           ))}
         </section>
 
-        <button className="w-full py-4 bg-white text-red-500 rounded-2xl font-medium uppercase tracking-widest text-xs flex items-center justify-center gap-2 border border-red-100 shadow-sm">
+        <button 
+          onClick={signOut}
+          className="w-full py-4 bg-white text-red-500 rounded-2xl font-medium uppercase tracking-widest text-xs flex items-center justify-center gap-2 border border-red-100 shadow-sm"
+        >
           <LogOut size={16} />
           Sign Out
         </button>

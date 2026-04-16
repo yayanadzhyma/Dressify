@@ -1,0 +1,125 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: wardrobe
+    // Document ID: {itemId}
+    // Fields:
+    //   - userId: string (required) - owner of the item
+    //   - name: string (required)
+    //   - category: string (required) - enum: tops, bottoms, shoes, outerwear, accessories
+    //   - color: string (required)
+    //   - imageUrl: string (required)
+    //   - price: number (required)
+    //   - timesWorn: number (required)
+    //   - lastWorn: string (optional)
+    //   - createdAt: string (required)
+    //
+    // Collection: profiles
+    // Document ID: {userId}
+    // Fields:
+    //   - userId: string (required)
+    //   - name: string (required)
+    //   - style: string (required)
+    //   - bodyType: string (required)
+    //   - gender: string (required)
+    //   - height: string (required)
+    //   - weight: string (required)
+    //   - location: string (required)
+    //   - notificationsEnabled: bool (required)
+    //   - avatarUrl: string (optional)
+    //
+    // Collection: shopHistory
+    // Document ID: {historyId}
+    // Fields:
+    //   - userId: string (required)
+    //   - query: string (required)
+    //   - combinations: list (required)
+    //   - timestamp: string (required)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+    function uidUnchanged() {
+      return !('userId' in request.resource.data) || request.resource.data.userId == request.auth.uid;
+    }
+    function uidNotModified() {
+      return !('userId' in request.resource.data) || request.resource.data.userId == resource.data.userId;
+    }
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+    function validStringLength(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+        request.resource.data[field].size() >= minLen &&
+        request.resource.data[field].size() <= maxLen;
+    }
+
+    // Domain Validators
+    function isValidClothingItem(data) {
+      return hasRequiredFields(['userId', 'name', 'category', 'color', 'imageUrl', 'price', 'timesWorn', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.category in ['tops', 'bottoms', 'shoes', 'outerwear', 'accessories'] &&
+             data.color is string && data.color.size() > 0 && data.color.size() < 50 &&
+             data.imageUrl is string && data.imageUrl.size() < 1000000 && // allow base64 up to ~1MB
+             data.price is number && data.price >= 0 &&
+             data.timesWorn is number && data.timesWorn >= 0 &&
+             data.createdAt is string &&
+             (!('lastWorn' in data) || data.lastWorn is string);
+    }
+
+    function isValidUserProfile(data) {
+      return hasRequiredFields(['userId', 'name', 'style', 'bodyType', 'gender', 'height', 'weight', 'location', 'notificationsEnabled']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.style is string && data.style.size() < 100 &&
+             data.bodyType is string && data.bodyType.size() < 100 &&
+             data.gender is string && data.gender.size() < 50 &&
+             data.height is string && data.height.size() < 50 &&
+             data.weight is string && data.weight.size() < 50 &&
+             data.location is string && data.location.size() < 100 &&
+             data.notificationsEnabled is bool &&
+             (!('avatarUrl' in data) || (data.avatarUrl is string && data.avatarUrl.size() < 1000000));
+    }
+
+    function isValidShopHistoryItem(data) {
+      return hasRequiredFields(['userId', 'query', 'combinations', 'timestamp']) &&
+             data.query is string && data.query.size() > 0 && data.query.size() < 500 &&
+             data.combinations is list && data.combinations.size() <= 10 &&
+             data.timestamp is string;
+    }
+
+    match /wardrobe/{itemId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && uidUnchanged() && isValidClothingItem(request.resource.data);
+      allow update: if isDocOwner() && uidNotModified() && isValidClothingItem(request.resource.data);
+      allow delete: if isDocOwner();
+    }
+
+    match /profiles/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && uidUnchanged() && isValidUserProfile(request.resource.data);
+      allow update: if isOwner(userId) && uidNotModified() && isValidUserProfile(request.resource.data);
+      allow delete: if isOwner(userId);
+    }
+
+    match /shopHistory/{historyId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && uidUnchanged() && isValidShopHistoryItem(request.resource.data);
+      allow update: if isDocOwner() && uidNotModified() && isValidShopHistoryItem(request.resource.data);
+      allow delete: if isDocOwner();
+    }
+  }
+}

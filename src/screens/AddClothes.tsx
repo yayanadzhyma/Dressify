@@ -48,6 +48,7 @@ export const AddClothes = () => {
     if (!result || !image) return;
     const newItem: ClothingItem = {
       id: Math.random().toString(36).substr(2, 9),
+      userId: '', // Will be set by the store
       name: result.name || 'New Item',
       category: (result.category as any) || 'tops',
       color: result.color || 'Unknown',

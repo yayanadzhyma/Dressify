@@ -7,8 +7,40 @@ import { AddClothes } from './screens/AddClothes';
 import { ShopSmart } from './screens/ShopSmart';
 import { Profile } from './screens/Profile';
 import { motion, AnimatePresence } from 'motion/react';
+import { StoreProvider, useStore } from './store';
+import { Sparkles } from 'lucide-react';
 
-export default function App() {
+const AppContent = () => {
+  const { user, loading, signIn } = useStore();
+
+  if (loading) {
+    return (
+      <div className="mobile-container flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-brand-olive border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="mobile-container flex flex-col items-center justify-center p-6 space-y-8 bg-brand-cream text-center">
+        <div className="w-24 h-24 bg-brand-olive rounded-full flex items-center justify-center shadow-xl">
+          <Sparkles className="text-white" size={40} />
+        </div>
+        <div className="space-y-4">
+          <h1 className="text-4xl font-serif italic text-brand-ink">Dressify</h1>
+          <p className="text-brand-ink/60">Your personal AI stylist and sustainable wardrobe manager.</p>
+        </div>
+        <button 
+          onClick={signIn}
+          className="w-full py-4 bg-brand-olive text-white rounded-2xl font-medium uppercase tracking-widest text-sm shadow-lg hover:bg-brand-olive/90 transition-colors"
+        >
+          Sign in with Google
+        </button>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <div className="mobile-container">
@@ -26,5 +58,13 @@ export default function App() {
         <Navigation />
       </div>
     </Router>
+  );
+};
+
+export default function App() {
+  return (
+    <StoreProvider>
+      <AppContent />
+    </StoreProvider>
   );
 }

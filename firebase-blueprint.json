@@ -1,0 +1,68 @@
+{
+  "entities": {
+    "ClothingItem": {
+      "title": "ClothingItem",
+      "description": "A piece of clothing in the user's wardrobe",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The ID of the user who owns this item" },
+        "name": { "type": "string" },
+        "category": { "type": "string", "enum": ["tops", "bottoms", "shoes", "outerwear", "accessories"] },
+        "color": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "price": { "type": "number" },
+        "timesWorn": { "type": "number" },
+        "lastWorn": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "name", "category", "color", "imageUrl", "price", "timesWorn", "createdAt"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "style": { "type": "string" },
+        "bodyType": { "type": "string" },
+        "gender": { "type": "string" },
+        "height": { "type": "string" },
+        "weight": { "type": "string" },
+        "location": { "type": "string" },
+        "notificationsEnabled": { "type": "boolean" },
+        "avatarUrl": { "type": "string" }
+      },
+      "required": ["userId", "name", "style", "bodyType", "gender", "height", "weight", "location", "notificationsEnabled"]
+    },
+    "ShopHistoryItem": {
+      "title": "ShopHistoryItem",
+      "description": "A history item of smart shopping analysis",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "query": { "type": "string" },
+        "combinations": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "query", "combinations", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/wardrobe/{itemId}": {
+      "schema": { "$ref": "#/entities/ClothingItem" },
+      "description": "Collection of clothing items"
+    },
+    "/profiles/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Collection of user profiles"
+    },
+    "/shopHistory/{historyId}": {
+      "schema": { "$ref": "#/entities/ShopHistoryItem" },
+      "description": "Collection of shop history items"
+    }
+  }
+}

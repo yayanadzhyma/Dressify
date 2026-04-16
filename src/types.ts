@@ -1,5 +1,6 @@
 export interface ClothingItem {
   id: string;
+  userId: string;
   name: string;
   category: 'tops' | 'bottoms' | 'shoes' | 'outerwear' | 'accessories';
   color: string;
@@ -19,6 +20,7 @@ export interface Outfit {
 }
 
 export interface UserProfile {
+  userId: string;
   name: string;
   style: string;
   bodyType: string;
@@ -32,6 +34,7 @@ export interface UserProfile {
 
 export interface ShopHistoryItem {
   id: string;
+  userId: string;
   query: string;
   combinations: string[];
   timestamp: string;
