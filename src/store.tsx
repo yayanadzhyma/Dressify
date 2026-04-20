@@ -151,8 +151,7 @@ export const StoreProvider: React.FC<{children: React.ReactNode}> = ({ children 
       const itemRef = doc(db, 'shopHistory', id);
       await deleteDoc(itemRef);
     } catch (error) {
-      const { OperationType: OpType } = await import('./utils/firestoreErrorHandler');
-      handleFirestoreError(error, OpType.DELETE, 'shopHistory');
+      handleFirestoreError(error, OperationType.DELETE, 'shopHistory');
     }
   };
 

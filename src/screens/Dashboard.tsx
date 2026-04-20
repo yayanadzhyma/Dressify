@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Cloud, Sun, Sparkles, TrendingDown, X, Check, ArrowRight, RefreshCw } from 'lucide-react';
 import { useStore } from '../store';
@@ -10,37 +10,40 @@ export const Dashboard = () => {
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [loading, setLoading] = useState(false);
   const [weatherData, setWeatherData] = useState({ temp: '18°C', condition: 'Sunny', note: 'Perfect for light layers' });
-  const [weatherLoading, setWeatherLoading] = useState(true);
+  const [weatherLoading, setWeatherLoading] = useState(false);
   const [selectedOutfit, setSelectedOutfit] = useState<Outfit | null>(null);
   const [isWearing, setIsWearing] = useState(false);
-  const [hasLoadedInitially, setHasLoadedInitially] = useState(false);
+  const isInitialLoadStarted = useRef(false);
 
   useEffect(() => {
     // Nur beim allerersten Laden (oder wenn der Kleiderschrank gerade erst befüllt wurde) automatisch ausführen
-    if (wardrobe.length > 0 && !hasLoadedInitially) {
+    if (wardrobe.length > 0 && !isInitialLoadStarted.current) {
+      isInitialLoadStarted.current = true;
       loadDashboardData();
-      setHasLoadedInitially(true);
     }
-  }, [wardrobe.length, hasLoadedInitially]);
+  }, [wardrobe.length]);
 
   const loadDashboardData = async () => {
+    if (loading || weatherLoading) return;
+    
     setWeatherLoading(true);
+    setLoading(true);
+    
     try {
       // If location is empty or not set, use a default or skip
       const locationToUse = profile.location || 'Zurich, Switzerland';
       const weather = await getWeather(locationToUse);
       setWeatherData(weather);
-      setWeatherLoading(false);
       
       if (wardrobe.length > 0) {
-        setLoading(true);
         const suggestions = await suggestOutfits(wardrobe, profile, `${weather.condition}, ${weather.temp}`);
         setOutfits(suggestions);
-        setLoading(false);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Failed to load dashboard data:", error);
+    } finally {
       setWeatherLoading(false);
+      setLoading(false);
     }
   };
 
