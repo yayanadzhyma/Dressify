@@ -10,7 +10,7 @@ export const scanClothingItem = async (base64Image: string): Promise<Partial<Clo
       {
         parts: [
           { inlineData: { data: base64Image, mimeType: "image/jpeg" } },
-          { text: "Analyze this clothing item. Return a JSON object with: name (descriptive), category (tops, bottoms, shoes, outerwear, accessories), color (primary color)." }
+          { text: "Analyze this clothing item. Return a JSON object with: name (descriptive), category (tops, bottoms, dresses, jumpsuits, shoes, outerwear, accessories), color (primary color)." }
         ]
       }
     ],
@@ -35,9 +35,8 @@ export const getWeather = async (location: string): Promise<{ temp: string; cond
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Get the current weather for ${location} from SRF Meteo (srf.ch/meteo). Return a JSON object with: temp (e.g. "18°C"), condition (e.g. "Sunny"), note (a short stylist note like "Perfect for light layers").`,
+      contents: `Estimate the current weather for ${location} for this time of year. Return a JSON object with: temp (e.g. "18°C"), condition (e.g. "Sunny"), note (a short stylist note like "Perfect for light layers").`,
       config: {
-        tools: [{ googleSearch: {} }],
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,

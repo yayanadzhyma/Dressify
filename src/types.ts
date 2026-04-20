@@ -2,7 +2,7 @@ export interface ClothingItem {
   id: string;
   userId: string;
   name: string;
-  category: 'tops' | 'bottoms' | 'shoes' | 'outerwear' | 'accessories';
+  category: 'tops' | 'bottoms' | 'dresses' | 'jumpsuits' | 'shoes' | 'outerwear' | 'accessories';
   color: string;
   imageUrl: string;
   price: number;

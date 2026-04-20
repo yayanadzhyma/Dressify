@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Cloud, Sun, Sparkles, TrendingDown, X, Check, ArrowRight } from 'lucide-react';
+import { Cloud, Sun, Sparkles, TrendingDown, X, Check, ArrowRight, RefreshCw } from 'lucide-react';
 import { useStore } from '../store';
 import { suggestOutfits, getWeather } from '../services/gemini';
 import { Outfit, ClothingItem } from '../types';
@@ -15,13 +15,18 @@ export const Dashboard = () => {
   const [isWearing, setIsWearing] = useState(false);
 
   useEffect(() => {
-    loadDashboardData();
-  }, [wardrobe, profile.location]);
+    // Nur beim ersten Laden automatisch ausführen, wenn noch keine Outfits da sind
+    if (wardrobe.length > 0 && outfits.length === 0) {
+      loadDashboardData();
+    }
+  }, [wardrobe.length, profile.location]);
 
   const loadDashboardData = async () => {
     setWeatherLoading(true);
     try {
-      const weather = await getWeather(profile.location);
+      // If location is empty or not set, use a default or skip
+      const locationToUse = profile.location || 'Zurich, Switzerland';
+      const weather = await getWeather(locationToUse);
       setWeatherData(weather);
       setWeatherLoading(false);
       
@@ -111,7 +116,7 @@ export const Dashboard = () => {
           </div>
         </div>
         <a 
-          href={`https://www.srf.ch/meteo/suche?q=${encodeURIComponent(profile.location)}`} 
+          href={`https://www.google.com/search?q=Wetter+${encodeURIComponent(profile.location)}`} 
           target="_blank" 
           rel="noopener noreferrer"
           className="p-2 hover:bg-brand-cream rounded-full transition-colors"
@@ -123,8 +128,18 @@ export const Dashboard = () => {
       {/* Outfit Suggestions */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-medium">Daily Picks</h2>
-          <Sparkles size={18} className="text-brand-clay" />
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-medium">Daily Picks</h2>
+            <Sparkles size={18} className="text-brand-clay" />
+          </div>
+          <button 
+            onClick={loadDashboardData} 
+            disabled={loading || weatherLoading}
+            className="p-2 bg-brand-cream rounded-full hover:bg-brand-olive/20 transition-colors disabled:opacity-50"
+            title="Refresh Outfits"
+          >
+            <RefreshCw size={16} className={`text-brand-olive ${loading ? 'animate-spin' : ''}`} />
+          </button>
         </div>
         
         <div className="flex gap-4 overflow-x-auto pb-4 snap-x no-scrollbar">

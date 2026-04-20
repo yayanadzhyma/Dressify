@@ -72,7 +72,7 @@ service cloud.firestore {
     function isValidClothingItem(data) {
       return hasRequiredFields(['userId', 'name', 'category', 'color', 'imageUrl', 'price', 'timesWorn', 'createdAt']) &&
              data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
-             data.category in ['tops', 'bottoms', 'shoes', 'outerwear', 'accessories'] &&
+             data.category in ['tops', 'bottoms', 'dresses', 'jumpsuits', 'shoes', 'outerwear', 'accessories'] &&
              data.color is string && data.color.size() > 0 && data.color.size() < 50 &&
              data.imageUrl is string && data.imageUrl.size() < 1000000 && // allow base64 up to ~1MB
              data.price is number && data.price >= 0 &&

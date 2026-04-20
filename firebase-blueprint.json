@@ -7,7 +7,7 @@
       "properties": {
         "userId": { "type": "string", "description": "The ID of the user who owns this item" },
         "name": { "type": "string" },
-        "category": { "type": "string", "enum": ["tops", "bottoms", "shoes", "outerwear", "accessories"] },
+        "category": { "type": "string", "enum": ["tops", "bottoms", "dresses", "jumpsuits", "shoes", "outerwear", "accessories"] },
         "color": { "type": "string" },
         "imageUrl": { "type": "string" },
         "price": { "type": "number" },

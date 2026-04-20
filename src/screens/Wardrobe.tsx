@@ -13,7 +13,7 @@ export const Wardrobe = () => {
   const [editForm, setEditForm] = useState({ name: '', price: 0, imageUrl: '' });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const categories = ['all', 'tops', 'bottoms', 'shoes', 'outerwear', 'accessories'];
+  const categories = ['all', 'tops', 'bottoms', 'dresses', 'jumpsuits', 'shoes', 'outerwear', 'accessories'];
 
   const filteredItems = wardrobe.filter(item => {
     const matchesFilter = filter === 'all' || item.category === filter;

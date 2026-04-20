@@ -165,6 +165,8 @@ export const AddClothes = () => {
                     >
                       <option value="tops">Tops</option>
                       <option value="bottoms">Bottoms</option>
+                      <option value="dresses">Dresses</option>
+                      <option value="jumpsuits">Jumpsuits</option>
                       <option value="shoes">Shoes</option>
                       <option value="outerwear">Outerwear</option>
                       <option value="accessories">Accessories</option>
