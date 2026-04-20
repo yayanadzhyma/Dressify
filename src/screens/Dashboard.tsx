@@ -13,13 +13,15 @@ export const Dashboard = () => {
   const [weatherLoading, setWeatherLoading] = useState(true);
   const [selectedOutfit, setSelectedOutfit] = useState<Outfit | null>(null);
   const [isWearing, setIsWearing] = useState(false);
+  const [hasLoadedInitially, setHasLoadedInitially] = useState(false);
 
   useEffect(() => {
-    // Nur beim ersten Laden automatisch ausführen, wenn noch keine Outfits da sind
-    if (wardrobe.length > 0 && outfits.length === 0) {
+    // Nur beim allerersten Laden (oder wenn der Kleiderschrank gerade erst befüllt wurde) automatisch ausführen
+    if (wardrobe.length > 0 && !hasLoadedInitially) {
       loadDashboardData();
+      setHasLoadedInitially(true);
     }
-  }, [wardrobe.length, profile.location]);
+  }, [wardrobe.length, hasLoadedInitially]);
 
   const loadDashboardData = async () => {
     setWeatherLoading(true);
@@ -116,7 +118,7 @@ export const Dashboard = () => {
           </div>
         </div>
         <a 
-          href={`https://www.google.com/search?q=Wetter+${encodeURIComponent(profile.location)}`} 
+          href={`https://www.google.com/search?q=weather+${encodeURIComponent(profile.location)}`} 
           target="_blank" 
           rel="noopener noreferrer"
           className="p-2 hover:bg-brand-cream rounded-full transition-colors"

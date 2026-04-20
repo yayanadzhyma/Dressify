@@ -35,8 +35,9 @@ export const getWeather = async (location: string): Promise<{ temp: string; cond
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Estimate the current weather for ${location} for this time of year. Return a JSON object with: temp (e.g. "18°C"), condition (e.g. "Sunny"), note (a short stylist note like "Perfect for light layers").`,
+      contents: `Get the current weather for ${location} based on Google Weather information. Return a JSON object with: temp (e.g. "18°C"), condition (e.g. "Sunny"), note (a short stylist note like "Perfect for light layers").`,
       config: {
+        tools: [{ googleSearch: {} }],
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -125,5 +126,59 @@ export const suggestOutfits = async (
         items: [wardrobe[0], wardrobe[2] || wardrobe[0]].filter(Boolean)
       }
     ];
+  }
+};
+
+export const analyzeProductImageCompatibility = async (
+  base64Image: string,
+  wardrobe: ClothingItem[]
+): Promise<{ itemName: string; combinations: string[] }> => {
+  if (wardrobe.length === 0) return { itemName: "Item", combinations: ["Your wardrobe is empty. Add some items to check compatibility!"] };
+  
+  const wardrobeSummary = wardrobe.map(i => `${i.name} (${i.category}, ${i.color})`).join(', ');
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: [
+        {
+          parts: [
+            { inlineData: { data: base64Image, mimeType: "image/jpeg" } },
+            { text: `Identify this clothing item and then, based on this wardrobe: ${wardrobeSummary}, suggest exactly 5 ways to style it using ONLY the items from the wardrobe. 
+            Return a JSON object with: 
+            itemName: "A short name for this item",
+            combinations: ["Suggestion 1", "Suggestion 2", "Suggestion 3", "Suggestion 4", "Suggestion 5"]` }
+          ]
+        }
+      ],
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            itemName: { type: Type.STRING },
+            combinations: { 
+              type: Type.ARRAY, 
+              items: { type: Type.STRING } 
+            }
+          },
+          required: ["itemName", "combinations"]
+        }
+      }
+    });
+
+    return JSON.parse(response.text || '{"itemName": "Item", "combinations": []}');
+  } catch (error) {
+    console.warn("Image compatibility analysis failed:", error);
+    return {
+      itemName: "Detected Item",
+      combinations: [
+        "Style it with your favorite basic pieces from the wardrobe.",
+        "Looks like a great match for your collection!",
+        "Try pairing with contrasting colors from your closet.",
+        "Versatile piece that complements your style.",
+        "Check your wardrobe for compatible items."
+      ]
+    };
   }
 };

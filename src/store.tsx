@@ -28,6 +28,7 @@ interface StoreContextType {
   updateItem: (id: string, updates: Partial<ClothingItem>) => void;
   updateProfile: (newProfile: UserProfile) => void;
   addHistoryItem: (item: ShopHistoryItem) => void;
+  removeHistoryItem: (id: string) => void;
   signIn: () => void;
   signOut: () => void;
 }
@@ -143,10 +144,22 @@ export const StoreProvider: React.FC<{children: React.ReactNode}> = ({ children 
     }
   };
 
+  const removeHistoryItem = async (id: string) => {
+    if (!user) return;
+    try {
+      const { deleteDoc } = await import('firebase/firestore');
+      const itemRef = doc(db, 'shopHistory', id);
+      await deleteDoc(itemRef);
+    } catch (error) {
+      const { OperationType: OpType } = await import('./utils/firestoreErrorHandler');
+      handleFirestoreError(error, OpType.DELETE, 'shopHistory');
+    }
+  };
+
   return (
     <StoreContext.Provider value={{
       user, loading, wardrobe, profile, shopHistory,
-      addItem, updateItem, updateProfile, addHistoryItem,
+      addItem, updateItem, updateProfile, addHistoryItem, removeHistoryItem,
       signIn: signInWithGoogle, signOut: logOut
     }}>
       {children}
